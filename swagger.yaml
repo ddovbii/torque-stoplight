@@ -1,0 +1,3323 @@
+swagger: '2.0'
+servers:
+  - url: qtorque.io
+    description: Torque Server
+    variables:
+      token:
+        default: demo
+        description: The Bearer Authorization token
+info:
+  title: Torque
+  description: "To get started, expand Access Tokens and run the login method. Copy the access_token from the response body. Then, click Authorize at the top of the page and enter the token in the format: \"Bearer access_token\".\r\nFor example:Bearer fqSWuw72BbUVFn8AbokF77GJ0r5KEn9MiZjLXF8kBwI"
+  version: 1.0.0
+  x-logo:
+    url: quali-logo-old.jpg
+externalDocs:
+  description: GitHub v3 REST API
+  url: 'https://docs.github.com/rest/'
+paths:
+  /api/token/refresh:
+    post:
+      tags:
+        - Access Tokens
+      summary: Extends an existing session. Use the new access token returned in the method’s response to reauthorize the session.
+      consumes:
+        - application/json-patch+json
+        - application/json
+        - text/json
+        - application/*+json
+      produces:
+        - text/plain
+        - application/json
+        - text/json
+      parameters:
+        - in: body
+          name: body
+          description: ''
+          schema:
+            $ref: '#/definitions/RefreshTokenModel'
+          x-examples: {}
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/TokenResponse'
+        '422':
+          description: Refresh token is invalid or was not given
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /api/token/longtoken:
+    post:
+      tags:
+        - Access Tokens
+      summary: Requests a long-lived access token. Token validity period is 2147483647 seconds.
+      produces:
+        - text/plain
+        - application/json
+        - text/json
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/TokenResponse'
+        '401':
+          description: Invalid credentials
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '404':
+          description: User not found
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+      x-internal: false
+  /api/token/revoke:
+    post:
+      tags:
+        - Access Tokens
+      summary: Cancels the current API session (nullifies the active access token)
+      produces:
+        - text/plain
+        - application/json
+        - text/json
+      responses:
+        '200':
+          description: Success
+        '422':
+          description: Failed to revoke access or refresh token
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /api/token/revokelongtoken:
+    post:
+      tags:
+        - Access Tokens
+      summary: Cancels the current long token API session (nullifies the active long token)
+      produces:
+        - text/plain
+        - application/json
+        - text/json
+      responses:
+        '200':
+          description: Success
+        '404':
+          description: User not found
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '422':
+          description: Failed to revoke long access token
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  '/api/accounts/{account}/login':
+    post:
+      tags:
+        - Access Tokens
+      summary: Creates an API session token. Token validity period is 7200 seconds.
+      consumes:
+        - application/json-patch+json
+        - application/json
+        - text/json
+        - application/*+json
+      produces:
+        - text/plain
+        - application/json
+        - text/json
+      parameters:
+        - in: path
+          name: account
+          description: Account name
+          required: true
+          type: string
+        - in: body
+          name: body
+          description: ''
+          schema:
+            $ref: '#/definitions/ModelForLogin'
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/TokenResponse'
+        '401':
+          description: Invalid credentials or too many login attempts
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '404':
+          description: User not found
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /api/settings/cloudaccounts/computeservices/k8s/agent-deployment-yaml:
+    get:
+      tags:
+        - Agent
+      summary: Gets the Kubernetes agent deployment YAML file.
+      produces:
+        - text/plain
+        - application/json
+        - text/json
+      parameters:
+        - in: query
+          name: cloudAccount
+          description: Cloud account containing the Kubernetes cluster
+          type: string
+        - in: query
+          name: computeService
+          description: Kubernetes cluster name
+          type: string
+        - in: query
+          name: sandboxNamespaces
+          description: Namespace defined in Kubernetes cluster
+          type: string
+      responses:
+        '200':
+          description: Success
+        '404':
+          description: 'Cloud account, compute service, or cluster not found'
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '422':
+          description: Cloud not processed request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /api/settings/computeservices/eks/agent-deployment-yaml:
+    get:
+      tags:
+        - Agent
+      summary: Gets the Amazon Elastic Kubernetes service (eks) agent deployment YAML file.
+      produces:
+        - text/plain
+        - application/json
+        - text/json
+      parameters:
+        - in: query
+          name: cloudAccount
+          description: Cloud account containing the Kubernetes cluster
+          type: string
+        - in: query
+          name: computeService
+          description: Kubernetes cluster name
+          type: string
+        - in: query
+          name: sandboxNamespace
+          description: Namespace defined in the Kubernetes cluster
+          type: array
+          items:
+            type: string
+        - in: query
+          name: roleArn
+          description: Rule ARN of the EKS
+          type: string
+      responses:
+        '200':
+          description: Success
+        '404':
+          description: 'Cloud account, compute service, or cluster not found'
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '422':
+          description: Cloud not processed request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /api/settings/cloudaccounts/computeservices/k8s/renew-cluster-token:
+    put:
+      tags:
+        - Agent
+      summary: Renews expired cluster token.
+      produces:
+        - text/plain
+        - application/json
+        - text/json
+      parameters:
+        - in: query
+          name: cloudAccount
+          description: Cloud account containing the Kubernetes cluster
+          type: string
+        - in: query
+          name: computeService
+          description: Kubernetes cluster name
+          type: string
+      responses:
+        '200':
+          description: Success
+        '404':
+          description: 'Cloud account, compute service, or cluster not found'
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '422':
+          description: Could not processed request
+  '/api/spaces/{space_name}/blueprints':
+    get:
+      tags:
+        - Blueprints
+      summary: 'Returns a list of published blueprints in the space, including sample blueprints.'
+      produces:
+        - text/plain
+        - application/json
+        - text/json
+      parameters:
+        - in: path
+          name: space_name
+          description: Name of the space containing the desired blueprints
+          required: true
+          type: string
+        - in: query
+          name: type
+          description: "Blueprint type: \"sandbox\" or \"production\"<br />\r\n            Optional: default is \"sandbox\""
+          type: string
+        - in: query
+          name: commit
+          description: "Blueprint commit: any commit name in a related repository<br />\r\n            Optional: default is null"
+          type: string
+        - in: query
+          name: branch
+          description: "Blueprint branch: any branch name in a related repository<br />\r\n            Optional: default is null"
+          type: string
+      responses:
+        '200':
+          description: Success
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/BlueprintForGetAllResponse'
+          examples:
+            example-1:
+              value:
+                - blueprint_name: WordPress Basic Stack (AWS)
+                  description: 'LAMP WordPress stack (Linux, Apache, MySQL, PHP)'
+                  url: 'https://github.com/ddovbii/samples/blob/main/blueprints/WordPress Basic Stack (AWS).yaml'
+                  inputs:
+                    - name: DB_USER
+                      default_value: root
+                      display_style: normal
+                      description: null
+                      optional: false
+                    - name: DB_PASS
+                      default_value: '12345'
+                      display_style: masked
+                      description: please set the root database password
+                      optional: false
+                    - name: DB_NAME
+                      default_value: wordpress_demo
+                      display_style: normal
+                      description: null
+                      optional: false
+                  enabled: true
+                  last_modified: '2021-11-30T14:18:44'
+                  modified_by: Dmytro Dovbii
+                  applications:
+                    - name: mysql
+                      version: ''
+                      icon_url: null
+                    - name: wordpress
+                      version: ''
+                      icon_url: null
+                  services: []
+                  clouds:
+                    - provider: aws
+                      cloud_account_name: AWS
+                      compute_service:
+                        name: aws/EC2
+                        type: EC2
+                        created_date: '2021-09-22T11:21:39.985578'
+                        created_by: Dmytro Dovbii
+                        user_defined: false
+                      region:
+                        id: eu-west-1
+                        name: EU (Ireland) eu-west-1
+                  is_sample: false
+                  artifacts: {}
+                  environment_type: none
+                  errors: []
+                  links:
+                    - rel: add blueprint to catalog
+                      href: 'https://qtorque.io/api/spaces/Trial/catalog'
+                      method: POST
+                    - rel: remove blueprint from catalog
+                      href: 'https://qtorque.io/api/spaces/Trial/catalog/WordPress%20Basic%20Stack%20(AWS)'
+                      method: DELETE
+                - blueprint_name: 'Integration environment - Wordpress LAMP stack (EKS & AWS RDS) '
+                  description: |
+                    wordpress on EKS + RDS
+                  url: 'https://github.com/ddovbii/samples/blob/main/blueprints/Integration environment - Wordpress LAMP stack (EKS & AWS RDS) .yaml'
+                  inputs:
+                    - name: DB_USER
+                      default_value: wordpress
+                      display_style: normal
+                      description: null
+                      optional: false
+                    - name: DB_PASS
+                      default_value: Torque!123
+                      display_style: masked
+                      description: please set the root database password
+                      optional: false
+                    - name: DB_NAME
+                      default_value: demo_db
+                      display_style: normal
+                      description: null
+                      optional: false
+                  enabled: false
+                  last_modified: '2021-09-30T14:15:10'
+                  modified_by: ophir.h
+                  applications:
+                    - name: wordpress-EKS
+                      version: ''
+                      icon_url: null
+                  services:
+                    - name: rds-mysql-eks
+                      type: TerraForm
+                  clouds:
+                    - provider: aws
+                      cloud_account_name: AWS
+                      compute_service:
+                        name: EKS
+                        type: null
+                        created_date: '0001-01-01T00:00:00'
+                        created_by: N/A
+                        user_defined: false
+                      region: null
+                  is_sample: false
+                  artifacts: {}
+                  environment_type: none
+                  errors:
+                    - message: Compute service 'EKS' is not recognized as a valid compute service under cloud account 'AWS' in this space
+                      name: Blueprint unknown compute service
+                      code: BLUEPRINT_UNKNOWN_COMPUTE_SERVICE
+                  links:
+                    - rel: add blueprint to catalog
+                      href: 'https://qtorque.io/api/spaces/Trial/catalog'
+                      method: POST
+                    - rel: remove blueprint from catalog
+                      href: 'https://qtorque.io/api/spaces/Trial/catalog/Integration%20environment%20-%20Wordpress%20LAMP%20stack%20(EKS%20%26%20AWS%20RDS)%20'
+                      method: DELETE
+                - blueprint_name: WordPress Basic Stack (Azure)
+                  description: 'LAMP WordPress stack (Linux, Apache, MySQL, PHP)'
+                  url: 'https://github.com/ddovbii/samples/blob/main/blueprints/WordPress Basic Stack (Azure).yaml'
+                  inputs:
+                    - name: DB_USER
+                      default_value: root
+                      display_style: normal
+                      description: null
+                      optional: false
+                    - name: DB_PASS
+                      default_value: '12345'
+                      display_style: masked
+                      description: please set the root database password
+                      optional: false
+                    - name: DB_NAME
+                      default_value: wordpress_demo
+                      display_style: normal
+                      description: null
+                      optional: false
+                  enabled: false
+                  last_modified: '2021-07-15T09:51:09'
+                  modified_by: svetaquali
+                  applications:
+                    - name: mysql
+                      version: ''
+                      icon_url: null
+                    - name: wordpress
+                      version: ''
+                      icon_url: null
+                  services: []
+                  clouds:
+                    - provider: ''
+                      cloud_account_name: azure
+                      compute_service:
+                        name: null
+                        type: null
+                        created_date: '0001-01-01T00:00:00'
+                        created_by: N/A
+                        user_defined: false
+                      region:
+                        id: westeurope
+                        name: null
+                  is_sample: false
+                  artifacts: {}
+                  environment_type: none
+                  errors:
+                    - message: 'Cloud account: azure is not recognized as a valid cloud account in this space'
+                      name: Blueprint unknown cloud account
+                      code: BLUEPRINT_UNKNOWN_CLOUD_ACCOUNT
+                  links:
+                    - rel: add blueprint to catalog
+                      href: 'https://qtorque.io/api/spaces/Trial/catalog'
+                      method: POST
+                    - rel: remove blueprint from catalog
+                      href: 'https://qtorque.io/api/spaces/Trial/catalog/WordPress%20Basic%20Stack%20(Azure)'
+                      method: DELETE
+                - blueprint_name: 'Dev & Test Flask-React basic stack (All-Containers, k8s)'
+                  description: |
+                    Flask framework + React.js Application running on K8s
+                  url: 'https://github.com/ddovbii/samples/blob/main/blueprints/Dev & Test Flask-React basic stack (All-Containers, k8s).yaml'
+                  inputs:
+                    - name: version
+                      default_value: latest
+                      display_style: normal
+                      description: that will be used as the docker images tag
+                      optional: true
+                  enabled: false
+                  last_modified: '2021-11-16T13:10:21'
+                  modified_by: amiros89
+                  applications:
+                    - name: react-frontend
+                      version: ''
+                      icon_url: null
+                    - name: flask-backend
+                      version: ''
+                      icon_url: null
+                  services: []
+                  clouds:
+                    - provider: aws
+                      cloud_account_name: AWS
+                      compute_service:
+                        name: EKS
+                        type: null
+                        created_date: '0001-01-01T00:00:00'
+                        created_by: N/A
+                        user_defined: false
+                      region: null
+                  is_sample: false
+                  artifacts: {}
+                  environment_type: none
+                  errors:
+                    - message: Compute service 'EKS' is not recognized as a valid compute service under cloud account 'AWS' in this space
+                      name: Blueprint unknown compute service
+                      code: BLUEPRINT_UNKNOWN_COMPUTE_SERVICE
+                  links:
+                    - rel: add blueprint to catalog
+                      href: 'https://qtorque.io/api/spaces/Trial/catalog'
+                      method: POST
+                    - rel: remove blueprint from catalog
+                      href: 'https://qtorque.io/api/spaces/Trial/catalog/Dev%20%26%20Test%20Flask-React%20basic%20stack%20(All-Containers,%20k8s)'
+                      method: DELETE
+                - blueprint_name: 'Dev & Test Environment (All-in-One, AWS)'
+                  description: |
+                    A simple multi-tier application deployed on a single EC2 instance.
+                  url: 'https://github.com/ddovbii/samples/blob/main/blueprints/Dev & Test Environment (All-in-One, AWS).yaml'
+                  inputs:
+                    - name: DB_USER
+                      default_value: root
+                      display_style: normal
+                      description: null
+                      optional: false
+                    - name: DB_PASS
+                      default_value: '12345'
+                      display_style: masked
+                      description: please set the root database password
+                      optional: false
+                    - name: DB_NAME
+                      default_value: demo_db
+                      display_style: normal
+                      description: null
+                      optional: false
+                  enabled: false
+                  last_modified: '2021-09-02T11:23:20'
+                  modified_by: ophir.h
+                  applications:
+                    - name: mysql
+                      version: ''
+                      icon_url: null
+                    - name: java-spring-website
+                      version: ''
+                      icon_url: null
+                  services: []
+                  clouds:
+                    - provider: aws
+                      cloud_account_name: AWS
+                      compute_service:
+                        name: aws/EC2
+                        type: EC2
+                        created_date: '2021-09-22T11:21:39.985578'
+                        created_by: Dmytro Dovbii
+                        user_defined: false
+                      region:
+                        id: eu-west-1
+                        name: EU (Ireland) eu-west-1
+                  is_sample: false
+                  artifacts: {}
+                  environment_type: none
+                  errors: []
+                  links:
+                    - rel: add blueprint to catalog
+                      href: 'https://qtorque.io/api/spaces/Trial/catalog'
+                      method: POST
+                    - rel: remove blueprint from catalog
+                      href: 'https://qtorque.io/api/spaces/Trial/catalog/Dev%20%26%20Test%20Environment%20(All-in-One,%20AWS)'
+                      method: DELETE
+                - blueprint_name: 'Dev & Test Environment (All-in-One, Azure)'
+                  description: |
+                    A simple multi-tier application deployed on a single Azure VM.
+                  url: 'https://github.com/ddovbii/samples/blob/main/blueprints/Dev & Test Environment (All-in-One, Azure).yaml'
+                  inputs:
+                    - name: DB_USER
+                      default_value: root
+                      display_style: normal
+                      description: null
+                      optional: false
+                    - name: DB_PASS
+                      default_value: '12345'
+                      display_style: masked
+                      description: please set the root database password
+                      optional: false
+                    - name: DB_NAME
+                      default_value: demo_db
+                      display_style: normal
+                      description: null
+                      optional: false
+                  enabled: false
+                  last_modified: '2021-07-15T09:51:09'
+                  modified_by: svetaquali
+                  applications:
+                    - name: mysql
+                      version: ''
+                      icon_url: null
+                    - name: java-spring-website
+                      version: ''
+                      icon_url: null
+                  services: []
+                  clouds:
+                    - provider: ''
+                      cloud_account_name: azure
+                      compute_service:
+                        name: null
+                        type: null
+                        created_date: '0001-01-01T00:00:00'
+                        created_by: N/A
+                        user_defined: false
+                      region:
+                        id: westeurope
+                        name: null
+                  is_sample: false
+                  artifacts: {}
+                  environment_type: none
+                  errors:
+                    - message: 'Cloud account: azure is not recognized as a valid cloud account in this space'
+                      name: Blueprint unknown cloud account
+                      code: BLUEPRINT_UNKNOWN_CLOUD_ACCOUNT
+                  links:
+                    - rel: add blueprint to catalog
+                      href: 'https://qtorque.io/api/spaces/Trial/catalog'
+                      method: POST
+                    - rel: remove blueprint from catalog
+                      href: 'https://qtorque.io/api/spaces/Trial/catalog/Dev%20%26%20Test%20Environment%20(All-in-One,%20Azure)'
+                      method: DELETE
+                - blueprint_name: Integration Environment (EC2 & AWS RDS)
+                  description: |
+                    Java application with a managed RDS database deployed with TerraForm.
+                  url: 'https://github.com/ddovbii/samples/blob/main/blueprints/Integration Environment (EC2 & AWS RDS).yaml'
+                  inputs:
+                    - name: DB_USER
+                      default_value: root
+                      display_style: normal
+                      description: null
+                      optional: false
+                    - name: DB_PASS
+                      default_value: Torque!123
+                      display_style: masked
+                      description: please set the root database password
+                      optional: false
+                    - name: DB_NAME
+                      default_value: demo_db
+                      display_style: normal
+                      description: null
+                      optional: false
+                  enabled: false
+                  last_modified: '2021-07-15T09:51:09'
+                  modified_by: svetaquali
+                  applications:
+                    - name: java-spring-website
+                      version: ''
+                      icon_url: null
+                  services:
+                    - name: rds-mysql
+                      type: TerraForm
+                  clouds:
+                    - provider: aws
+                      cloud_account_name: AWS
+                      compute_service:
+                        name: aws/EC2
+                        type: EC2
+                        created_date: '2021-09-22T11:21:39.985578'
+                        created_by: Dmytro Dovbii
+                        user_defined: false
+                      region:
+                        id: eu-west-1
+                        name: EU (Ireland) eu-west-1
+                  is_sample: false
+                  artifacts: {}
+                  environment_type: none
+                  errors: []
+                  links:
+                    - rel: add blueprint to catalog
+                      href: 'https://qtorque.io/api/spaces/Trial/catalog'
+                      method: POST
+                    - rel: remove blueprint from catalog
+                      href: 'https://qtorque.io/api/spaces/Trial/catalog/Integration%20Environment%20(EC2%20%26%20AWS%20RDS)'
+                      method: DELETE
+                - blueprint_name: Integration Environment (VM & Azure Database)
+                  description: |
+                    Java application with a managed Azure database deployed with TerraForm.
+                  url: 'https://github.com/ddovbii/samples/blob/main/blueprints/Integration Environment (VM & Azure Database).yaml'
+                  inputs:
+                    - name: DB_USER
+                      default_value: torque
+                      display_style: normal
+                      description: null
+                      optional: false
+                    - name: DB_PASS
+                      default_value: sv4YPTPs7fN&
+                      display_style: masked
+                      description: |
+                        Database server password must contain from 8 to 128 characters. Your password must contain characters from three of the following categories: English uppercase letters, English lowercase letters, numbers (0-9), and non-alphanumeric characters (!, $, #, %, and so on)
+                      optional: false
+                    - name: DB_NAME
+                      default_value: demo_db
+                      display_style: normal
+                      description: null
+                      optional: false
+                    - name: MANAGED_IDENTITY
+                      default_value: null
+                      display_style: normal
+                      description: null
+                      optional: false
+                  enabled: false
+                  last_modified: '2021-07-15T09:51:09'
+                  modified_by: svetaquali
+                  applications:
+                    - name: java-spring-website
+                      version: ''
+                      icon_url: null
+                  services:
+                    - name: azure-mysql
+                      type: TerraForm
+                  clouds:
+                    - provider: ''
+                      cloud_account_name: azure
+                      compute_service:
+                        name: null
+                        type: null
+                        created_date: '0001-01-01T00:00:00'
+                        created_by: N/A
+                        user_defined: false
+                      region:
+                        id: westeurope
+                        name: null
+                  is_sample: false
+                  artifacts: {}
+                  environment_type: none
+                  errors:
+                    - message: 'Cloud account: azure is not recognized as a valid cloud account in this space'
+                      name: Blueprint unknown cloud account
+                      code: BLUEPRINT_UNKNOWN_CLOUD_ACCOUNT
+                  links:
+                    - rel: add blueprint to catalog
+                      href: 'https://qtorque.io/api/spaces/Trial/catalog'
+                      method: POST
+                    - rel: remove blueprint from catalog
+                      href: 'https://qtorque.io/api/spaces/Trial/catalog/Integration%20Environment%20(VM%20%26%20Azure%20Database)'
+                      method: DELETE
+                - blueprint_name: Staging Environment (Amazon Aurora Cluster)
+                  description: |
+                    A complex cloud architecture of a web application and a managed database cluster deployed with TerraForm.
+                  url: 'https://github.com/ddovbii/samples/blob/main/blueprints/Staging Environment (Amazon Aurora Cluster).yaml'
+                  inputs:
+                    - name: DB_USER
+                      default_value: root
+                      display_style: normal
+                      description: null
+                      optional: false
+                    - name: DB_PASS
+                      default_value: Torque!123
+                      display_style: masked
+                      description: please set the root database password
+                      optional: false
+                    - name: DB_NAME
+                      default_value: demo_db
+                      display_style: normal
+                      description: null
+                      optional: false
+                  enabled: false
+                  last_modified: '2021-07-15T09:51:09'
+                  modified_by: svetaquali
+                  applications:
+                    - name: java-spring-website
+                      version: ''
+                      icon_url: null
+                  services:
+                    - name: rds-mysql-aurora-cluster
+                      type: TerraForm
+                  clouds:
+                    - provider: aws
+                      cloud_account_name: AWS
+                      compute_service:
+                        name: aws/EC2
+                        type: EC2
+                        created_date: '2021-09-22T11:21:39.985578'
+                        created_by: Dmytro Dovbii
+                        user_defined: false
+                      region:
+                        id: eu-west-1
+                        name: EU (Ireland) eu-west-1
+                  is_sample: false
+                  artifacts: {}
+                  environment_type: none
+                  errors: []
+                  links:
+                    - rel: add blueprint to catalog
+                      href: 'https://qtorque.io/api/spaces/Trial/catalog'
+                      method: POST
+                    - rel: remove blueprint from catalog
+                      href: 'https://qtorque.io/api/spaces/Trial/catalog/Staging%20Environment%20(Amazon%20Aurora%20Cluster)'
+                      method: DELETE
+                - blueprint_name: 'Dev & Test MERN basic stack (All-Containers, k8s)'
+                  description: |
+                    Mongo + Express + React.js + Node.js (MERN stack) Application running on K8s
+                  url: 'https://github.com/ddovbii/samples/blob/main/blueprints/Dev & Test MERN basic stack (All-Containers, k8s).yaml'
+                  inputs:
+                    - name: version
+                      default_value: latest
+                      display_style: normal
+                      description: that will be used as the docker images tag
+                      optional: true
+                  enabled: false
+                  last_modified: '2021-09-02T11:35:43'
+                  modified_by: ophir.h
+                  applications:
+                    - name: todo-ui
+                      version: ''
+                      icon_url: null
+                    - name: todo-api
+                      version: ''
+                      icon_url: null
+                    - name: mongodb
+                      version: ''
+                      icon_url: null
+                  services: []
+                  clouds:
+                    - provider: aws
+                      cloud_account_name: AWS
+                      compute_service:
+                        name: EKS
+                        type: null
+                        created_date: '0001-01-01T00:00:00'
+                        created_by: N/A
+                        user_defined: false
+                      region: null
+                  is_sample: false
+                  artifacts: {}
+                  environment_type: none
+                  errors:
+                    - message: Compute service 'EKS' is not recognized as a valid compute service under cloud account 'AWS' in this space
+                      name: Blueprint unknown compute service
+                      code: BLUEPRINT_UNKNOWN_COMPUTE_SERVICE
+                  links:
+                    - rel: add blueprint to catalog
+                      href: 'https://qtorque.io/api/spaces/Trial/catalog'
+                      method: POST
+                    - rel: remove blueprint from catalog
+                      href: 'https://qtorque.io/api/spaces/Trial/catalog/Dev%20%26%20Test%20MERN%20basic%20stack%20(All-Containers,%20k8s)'
+                      method: DELETE
+                - blueprint_name: autogen_init
+                  description: Auto generated blueprint for terraform module init
+                  url: null
+                  inputs: []
+                  enabled: true
+                  last_modified: '2021-11-30T17:43:31.7282647Z'
+                  modified_by: null
+                  applications:
+                    - name: autogenapp
+                      version: ''
+                      icon_url: null
+                  services:
+                    - name: init
+                      type: TerraForm
+                  clouds:
+                    - provider: aws
+                      cloud_account_name: AWS
+                      compute_service:
+                        name: aws/EC2
+                        type: EC2
+                        created_date: '2021-09-22T11:21:39.985578'
+                        created_by: Dmytro Dovbii
+                        user_defined: false
+                      region:
+                        id: eu-west-1
+                        name: EU (Ireland) eu-west-1
+                  is_sample: false
+                  artifacts: {}
+                  environment_type: sandbox
+                  errors: []
+                  links:
+                    - rel: add blueprint to catalog
+                      href: 'https://qtorque.io/api/spaces/Trial/catalog'
+                      method: POST
+                    - rel: remove blueprint from catalog
+                      href: 'https://qtorque.io/api/spaces/Trial/catalog/autogen_init'
+                      method: DELETE
+  '/api/spaces/{space_name}/validations/blueprints':
+    post:
+      tags:
+        - Blueprints
+      summary: Runs validation check on a specific blueprint in the space
+      consumes:
+        - application/json-patch+json
+        - application/json
+        - text/json
+        - application/*+json
+      produces:
+        - text/plain
+        - application/json
+        - text/json
+      parameters:
+        - in: path
+          name: space_name
+          description: Name of the space containing the blueprint
+          required: true
+          type: string
+        - in: body
+          name: body
+          description: ''
+          schema:
+            $ref: '#/definitions/BlueprintValidationRequest'
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/BlueprintValidationResponse'
+        '404':
+          description: Space or blueprint repository not found
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '422':
+          description: 'Blueprint name, blueprint type, or blueprint repository branch is empty'
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  '/api/spaces/{space_name}/catalog':
+    post:
+      tags:
+        - Blueprints Catalog
+      summary: Publishes a blueprint to blueprints catalog
+      consumes:
+        - application/json-patch+json
+        - application/json
+        - text/json
+        - application/*+json
+      produces:
+        - text/plain
+        - application/json
+        - text/json
+      parameters:
+        - in: path
+          name: space_name
+          description: Name of the space that will contain the blueprint
+          required: true
+          type: string
+        - in: body
+          name: body
+          description: ''
+          schema:
+            $ref: '#/definitions/AddCatalogRequest'
+      responses:
+        '200':
+          description: Success
+        '404':
+          description: Space or blueprint not found
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+    get:
+      tags:
+        - Blueprints Catalog
+      summary: 'Returns details of all published blueprints in the blueprints catalog, including sample blueprints.'
+      produces:
+        - text/plain
+        - application/json
+        - text/json
+      parameters:
+        - in: path
+          name: space_name
+          description: Name of the space containing the blueprints
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Success
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/CatalogForGetAllResponse'
+        '404':
+          description: Space not found
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  '/api/spaces/{space_name}/catalog/{blueprint_name}':
+    get:
+      tags:
+        - Blueprints Catalog
+      summary: Returns details of a published blueprint in blueprints catalog
+      produces:
+        - text/plain
+        - application/json
+        - text/json
+      parameters:
+        - in: path
+          name: space_name
+          description: Name of the space containing the blueprint
+          required: true
+          type: string
+        - in: path
+          name: blueprint_name
+          description: Blueprint name
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/CatalogForGetResponse'
+        '404':
+          description: 'Space, blueprint, or blueprint in catalog not found'
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+    delete:
+      tags:
+        - Blueprints Catalog
+      summary: Removes a blueprint from blueprint catalog
+      produces:
+        - text/plain
+        - application/json
+        - text/json
+      parameters:
+        - in: path
+          name: space_name
+          description: Name of the space containing the blueprint
+          required: true
+          type: string
+        - in: path
+          name: blueprint_name
+          description: Name of the blueprint to be removed from blueprints catalog
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Success
+        '404':
+          description: Space or blueprint in catalog not found
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /api/settings/parameters:
+    post:
+      tags:
+        - Parameters
+      summary: Adds a parameter to Parameter Store
+      consumes:
+        - application/json-patch+json
+        - application/json
+        - text/json
+        - application/*+json
+      produces:
+        - text/plain
+        - application/json
+        - text/json
+      parameters:
+        - in: body
+          name: body
+          description: ''
+          schema:
+            $ref: '#/definitions/ParameterStoreItemRequest'
+      responses:
+        '200':
+          description: Success
+        '422':
+          description: Invalid parameter value
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+    get:
+      tags:
+        - Parameters
+      summary: Gets all parameters from Parameter Store
+      produces:
+        - text/plain
+        - application/json
+        - text/json
+      responses:
+        '200':
+          description: Success
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/ParameterStoreItemResponse'
+  '/api/settings/parameters/{param_name}':
+    get:
+      tags:
+        - Parameters
+      summary: Gets a parameter from Parameter Store
+      produces:
+        - text/plain
+        - application/json
+        - text/json
+      parameters:
+        - in: path
+          name: param_name
+          description: Parameter name
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/ParameterStoreItemResponse'
+        '404':
+          description: Parameter not found in Parameter Store
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+    delete:
+      tags:
+        - Parameters
+      summary: Deletes a parameter from Parameter Store
+      produces:
+        - text/plain
+        - application/json
+        - text/json
+      parameters:
+        - in: path
+          name: param_name
+          description: Parameter name
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Success
+        '422':
+          description: Parameter not found in Parameter Store
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  '/api/spaces/{space_name}/production':
+    post:
+      tags:
+        - Production Environments
+      summary: Creates a blue production environment
+      consumes:
+        - application/json-patch+json
+        - application/json
+        - text/json
+        - application/*+json
+      produces:
+        - text/plain
+        - application/json
+        - text/json
+      parameters:
+        - in: path
+          name: space_name
+          description: Name of the space that will contain the blue production environment
+          required: true
+          type: string
+        - in: body
+          name: body
+          description: ''
+          schema:
+            $ref: '#/definitions/CreateProductionBlueRequest'
+      responses:
+        '202':
+          description: Operation started
+          schema:
+            $ref: '#/definitions/CreateEnvResponse'
+        '400':
+          description: Operation failed
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '404':
+          description: Space or user not found
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '422':
+          description: Could not process the request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '424':
+          description: Cloud account not accessible
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+    get:
+      tags:
+        - Production Environments
+      summary: Gets all production environments from a space
+      produces:
+        - text/plain
+        - application/json
+        - text/json
+      parameters:
+        - in: path
+          name: space_name
+          description: Name of the space containing the desired production environments
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Success
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/ProductionResponseListItem'
+        '400':
+          description: Operation failed
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '404':
+          description: Space not found
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  '/api/spaces/{space_name}/production/{production_id}/green':
+    post:
+      tags:
+        - Production Environments
+      summary: Creates a green production environment
+      consumes:
+        - application/json-patch+json
+        - application/json
+        - text/json
+        - application/*+json
+      produces:
+        - text/plain
+        - application/json
+        - text/json
+      parameters:
+        - in: path
+          name: space_name
+          description: Name of the space that will contain the green production environment
+          required: true
+          type: string
+        - in: path
+          name: production_id
+          description: Production environment ID
+          required: true
+          type: string
+        - in: body
+          name: body
+          description: ''
+          schema:
+            $ref: '#/definitions/CreateProductionGreenRequest'
+      responses:
+        '202':
+          description: Operation started
+          schema:
+            $ref: '#/definitions/CreateEnvResponse'
+        '400':
+          description: Operation failed
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '404':
+          description: 'Space, user, or blue production environment not found'
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '422':
+          description: Could not process the request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '424':
+          description: Cloud account not accessible
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+    delete:
+      tags:
+        - Production Environments
+      summary: Deletes a green production environment
+      produces:
+        - text/plain
+        - application/json
+        - text/json
+      parameters:
+        - in: path
+          name: space_name
+          description: Name of the space containing the green production environment
+          required: true
+          type: string
+        - in: path
+          name: production_id
+          description: Production environment ID
+          required: true
+          type: string
+      responses:
+        '202':
+          description: Operation started
+        '400':
+          description: Operation failed
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '404':
+          description: Space or blue/green production not found
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '423':
+          description: Production environment temporarily unavailable for termination
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '424':
+          description: Cloud account not accessible
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+    get:
+      tags:
+        - Production Environments
+      summary: Gets a green production environment
+      produces:
+        - text/plain
+        - application/json
+        - text/json
+      parameters:
+        - in: path
+          name: space_name
+          description: Name of the space containing the green production environment
+          required: true
+          type: string
+        - in: path
+          name: production_id
+          description: Production environment ID
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/ProductionGreenResponse'
+        '400':
+          description: Operation failed
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '404':
+          description: Space or production environment not found
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  '/api/spaces/{space_name}/production/{production_id}':
+    get:
+      tags:
+        - Production Environments
+      summary: Gets a blue production environment
+      produces:
+        - text/plain
+        - application/json
+        - text/json
+      parameters:
+        - in: path
+          name: space_name
+          description: Name of the space containing the blue production environment
+          required: true
+          type: string
+        - in: path
+          name: production_id
+          description: Production environment ID
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/ProductionBlueResponse'
+        '400':
+          description: Operation failed
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '404':
+          description: Space or production environment not found
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+    delete:
+      tags:
+        - Production Environments
+      summary: Deletes a blue production environment
+      produces:
+        - text/plain
+        - application/json
+        - text/json
+      parameters:
+        - in: path
+          name: space_name
+          description: Name of the space containing the blue production environment
+          required: true
+          type: string
+        - in: path
+          name: production_id
+          description: Production environment ID
+          required: true
+          type: string
+      responses:
+        '202':
+          description: Operation started
+        '400':
+          description: Operation failed
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '404':
+          description: Space or production environment not found
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '423':
+          description: Production environment temporarily unavailable for termination
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '424':
+          description: Cloud account not accessible
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  '/api/spaces/{space_name}/production/{production_id}/green/exposure':
+    put:
+      tags:
+        - Production Environments
+      summary: "Exposes a green production environment\r\nSee https://community.qtorque.io/creating-your-production-environment-56/managing-production-with-blue-green-deployment-231"
+      produces:
+        - text/plain
+        - application/json
+        - text/json
+      parameters:
+        - in: path
+          name: space_name
+          description: Name of the space containing the green production environment
+          required: true
+          type: string
+        - in: path
+          name: production_id
+          description: Production environment ID
+          required: true
+          type: string
+        - in: query
+          name: value
+          description: "Exposure amount in percentage of the green production environment to user traffic\r\n            <remarks>\r\n            Value can be 0 or 100\r\n            </remarks>"
+          type: integer
+          format: int32
+      responses:
+        '200':
+          description: Success
+        '202':
+          description: Operation started
+        '400':
+          description: Operation failed
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '404':
+          description: Space or blue/green production environment not found
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '409':
+          description: Green not ready for exposure or green cannot be exposed while promoting
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '422':
+          description: Invalid exposure value
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '424':
+          description: Cloud account not accessible
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  '/api/spaces/{space_name}/production/{production_id}/green/promote':
+    put:
+      tags:
+        - Production Environments
+      summary: "User traffic will be redirected only to green production environment\r\nSee https://community.qtorque.io/creating-your-production-environment-56/managing-production-with-blue-green-deployment-231"
+      produces:
+        - text/plain
+        - application/json
+        - text/json
+      parameters:
+        - in: path
+          name: space_name
+          description: Name of the space containing the green production environment
+          required: true
+          type: string
+        - in: path
+          name: production_id
+          description: Production environment ID
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Success
+        '202':
+          description: Operation started
+        '400':
+          description: Operation failed
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '404':
+          description: 'Space, blue/green production environment, or account not found'
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '409':
+          description: Green not ready for promoting or Green cannot be promoting while being exposed
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '424':
+          description: Cloud account not accessible
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  '/api/spaces/{space_name}/production/{production_id}/debuggingservice':
+    put:
+      tags:
+        - Production Environments
+      summary: Updates debugging service of blue production environment
+      produces:
+        - text/plain
+        - application/json
+        - text/json
+      parameters:
+        - in: path
+          name: space_name
+          description: Name of the space containing the blue production environment
+          required: true
+          type: string
+        - in: path
+          name: production_id
+          description: Production environment ID
+          required: true
+          type: string
+        - in: query
+          name: value
+          description: 'New value of debugging service: "on" or "off"'
+          type: string
+      responses:
+        '200':
+          description: Success
+        '202':
+          description: Operation started
+        '400':
+          description: Operation failed
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '404':
+          description: 'Space, production environment, or QualiY not found'
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '409':
+          description: Current status of QualiY conflicts with new value
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '422':
+          description: Value is empty or invalid
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '424':
+          description: Cloud account not accessible
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  '/api/spaces/{space_name}/production/{production_id}/green/debuggingservice':
+    put:
+      tags:
+        - Production Environments
+      summary: Updates debugging service of green production environment
+      produces:
+        - text/plain
+        - application/json
+        - text/json
+      parameters:
+        - in: path
+          name: space_name
+          description: Name of the space containing the green production environment
+          required: true
+          type: string
+        - in: path
+          name: production_id
+          description: Production environment ID
+          required: true
+          type: string
+        - in: query
+          name: value
+          description: 'New value of debugging service: "on" or "off"'
+          type: string
+      responses:
+        '200':
+          description: Success
+        '202':
+          description: Operation started
+        '400':
+          description: Operation failed
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '404':
+          description: 'Space, blue/green production environment, or QualiY not found'
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '409':
+          description: Current status of QualiY conflicts with new value
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '422':
+          description: Value is empty or invalid
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '424':
+          description: Cloud account not accessible
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  '/api/spaces/{space_name}/sandbox':
+    get:
+      tags:
+        - Sandbox Environments
+      summary: Returns details of all sandboxes in the space
+      produces:
+        - text/plain
+        - application/json
+        - text/json
+      parameters:
+        - in: path
+          name: space_name
+          description: Name of the space containing the sandboxes
+          required: true
+          type: string
+        - in: query
+          name: filter
+          description: "Filter for the environment:\r\n- \"automation\": Sandboxes launched by any automation process in the space\r\n- \"my\": Sandboxes launched by the user\r\n- \"all\": Sandboxes launched by anyone in the space"
+          type: string
+          default: all
+        - in: query
+          name: sandbox_name
+          description: String that all sandbox names must contain
+          type: string
+        - in: query
+          name: count
+          description: Amount of sandboxes to be retrieved
+          type: integer
+          format: int32
+          default: 20
+      responses:
+        '200':
+          description: Success
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/SandboxResponseListItem'
+        '404':
+          description: Space not found
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '422':
+          description: Count is above the maximum allowed sandboxes (1000)
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+    post:
+      tags:
+        - Sandbox Environments
+      summary: Launches a new sandbox environment in Torque
+      consumes:
+        - application/json-patch+json
+        - application/json
+        - text/json
+        - application/*+json
+      produces:
+        - text/plain
+        - application/json
+        - text/json
+      parameters:
+        - in: path
+          name: space_name
+          description: Name of the space that should contain the sandbox environment
+          required: true
+          type: string
+        - in: body
+          name: body
+          description: ''
+          schema:
+            $ref: '#/definitions/CreateSandboxRequest'
+      responses:
+        '202':
+          description: Success
+          schema:
+            $ref: '#/definitions/CreateEnvResponse'
+        '400':
+          description: Operation failed
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '403':
+          description: User is not permitted to launch sandbox from branch
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '404':
+          description: 'Space, current user, or compute service user not found'
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '422':
+          description: Could not processed request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '424':
+          description: Cloud account not accessible
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  '/api/spaces/{space_name}/sandbox/{sandbox_id}':
+    get:
+      tags:
+        - Sandbox Environments
+      summary: Gets details on a sandbox
+      produces:
+        - text/plain
+        - application/json
+        - text/json
+      parameters:
+        - in: path
+          name: space_name
+          description: Name of the space containing the sandbox
+          required: true
+          type: string
+        - in: path
+          name: sandbox_id
+          description: Sandbox ID
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/SandboxResponse'
+        '404':
+          description: Space or sandbox not found
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '424':
+          description: Cloud account is not accessible
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+    delete:
+      tags:
+        - Sandbox Environments
+      summary: Ends a running sandbox from Torque
+      produces:
+        - text/plain
+        - application/json
+        - text/json
+      parameters:
+        - in: path
+          name: space_name
+          description: Name of the space containing the sandbox
+          required: true
+          type: string
+        - in: path
+          name: sandbox_id
+          description: Sandbox ID
+          required: true
+          type: string
+        - in: query
+          name: ignore_errors
+          description: 'Should ignore errors during termination, if set to true then if termination of the sandbox failed it will be accepted as termination succeeded.'
+          type: string
+      responses:
+        '202':
+          description: Success
+        '400':
+          description: Operation failed
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '404':
+          description: 'Space not found, sandbox not found, or sandbox already ended'
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '422':
+          description: Invalid "ignore_errors" value
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '423':
+          description: Sandbox already ending or temporarily unavailable for ending
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '424':
+          description: Cloud not accessible
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  '/api/spaces/{space_name}/sandbox/{sandbox_id}/scheduled_end_time':
+    put:
+      tags:
+        - Sandbox Environments
+      summary: Extends the duration of a running sandbox
+      produces:
+        - text/plain
+        - application/json
+        - text/json
+      parameters:
+        - in: path
+          name: space_name
+          description: Name of the space containing the sandbox
+          required: true
+          type: string
+        - in: path
+          name: sandbox_id
+          description: Sandbox ID
+          required: true
+          type: string
+        - in: query
+          name: value
+          description: 'New scheduled end time in ISO 8601 format. For example, 2021-10-06T08:27:05.215Z.'
+          type: string
+          format: date-time
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Operation failed
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '404':
+          description: Space or sandbox not found
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '422':
+          description: '"value" (end time) is empty, not UTC, or time already passed'
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '424':
+          description: Cloud not accessible
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  '/api/spaces/{space_name}/sandbox/{sandbox_id}/debuggingservice':
+    put:
+      tags:
+        - Sandbox Environments
+      summary: "Turns Bastion on or off\r\n<remarks>This API requires Bastion to be deployed in the sandbox environment</remarks>"
+      produces:
+        - text/plain
+        - application/json
+        - text/json
+      parameters:
+        - in: path
+          name: space_name
+          description: Name of the space containing the sandbox
+          required: true
+          type: string
+        - in: path
+          name: sandbox_id
+          description: Sandbox ID
+          required: true
+          type: string
+        - in: query
+          name: value
+          description: 'Indicates if to enable/disable the debugging service: "on" or "off"'
+          type: string
+      responses:
+        '200':
+          description: Success
+        '202':
+          description: Request is in progress or triggered
+        '400':
+          description: Operation failed
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '404':
+          description: 'Space not found, sandbox not found, or debugging service is disabled'
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '409':
+          description: The current status of the debugging service is conflicted with the new status request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '422':
+          description: '"value" is empty or invalid'
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '424':
+          description: Cloud not accessible
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  '/api/spaces/{space_name}/sandbox/{sandboxId}/logs/preparetags':
+    get:
+      tags:
+        - Sandbox Environments
+      produces:
+        - text/plain
+        - application/json
+        - text/json
+      parameters:
+        - in: path
+          name: space_name
+          required: true
+          type: string
+        - in: path
+          name: sandboxId
+          required: true
+          type: string
+        - in: query
+          name: service_name
+          type: string
+      responses:
+        '200':
+          description: Success
+          schema:
+            type: string
+        '403':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '409':
+          description: Conflict
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  '/api/spaces/{space_name}/sandbox/{sandboxId}/logs/tfinit':
+    get:
+      tags:
+        - Sandbox Environments
+      produces:
+        - text/plain
+        - application/json
+        - text/json
+      parameters:
+        - in: path
+          name: space_name
+          required: true
+          type: string
+        - in: path
+          name: sandboxId
+          required: true
+          type: string
+        - in: query
+          name: service_name
+          type: string
+      responses:
+        '200':
+          description: Success
+          schema:
+            type: string
+        '403':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '409':
+          description: Conflict
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  '/api/spaces/{space_name}/sandbox/{sandboxId}/logs/tfplan':
+    get:
+      tags:
+        - Sandbox Environments
+      produces:
+        - text/plain
+        - application/json
+        - text/json
+      parameters:
+        - in: path
+          name: space_name
+          required: true
+          type: string
+        - in: path
+          name: sandboxId
+          required: true
+          type: string
+        - in: query
+          name: service_name
+          type: string
+      responses:
+        '200':
+          description: Success
+          schema:
+            type: string
+        '403':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '409':
+          description: Conflict
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  '/api/spaces/{space_name}/sandbox/{sandboxId}/logs/tfapply':
+    get:
+      tags:
+        - Sandbox Environments
+      produces:
+        - text/plain
+        - application/json
+        - text/json
+      parameters:
+        - in: path
+          name: space_name
+          required: true
+          type: string
+        - in: path
+          name: sandboxId
+          required: true
+          type: string
+        - in: query
+          name: service_name
+          type: string
+      responses:
+        '200':
+          description: Success
+          schema:
+            type: string
+        '403':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '409':
+          description: Conflict
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  '/api/spaces/{space_name}/sandbox/{sandboxId}/logs/tfdestroy':
+    get:
+      tags:
+        - Sandbox Environments
+      produces:
+        - text/plain
+        - application/json
+        - text/json
+      parameters:
+        - in: path
+          name: space_name
+          required: true
+          type: string
+        - in: path
+          name: sandboxId
+          required: true
+          type: string
+        - in: query
+          name: service_name
+          type: string
+      responses:
+        '200':
+          description: Success
+          schema:
+            type: string
+        '403':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        '409':
+          description: Conflict
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /api/settings/cloudproviders/aws:
+    put:
+      tags:
+        - Settings
+      summary: Set AWS cloud provider settings.
+      consumes:
+        - application/json-patch+json
+        - application/json
+        - text/json
+        - application/*+json
+      parameters:
+        - in: body
+          name: body
+          description: ''
+          schema:
+            $ref: '#/definitions/AwsCloudProviderSettingsModel'
+      responses:
+        '200':
+          description: Success
+    get:
+      tags:
+        - Settings
+      summary: Get AWS cloud provider settings.
+      produces:
+        - text/plain
+        - application/json
+        - text/json
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/AwsCloudProviderSettingsModel'
+definitions:
+  AddCatalogRequest:
+    x-internal: true
+    description: Request to add a blueprint to blueprint catalog
+    type: object
+    properties:
+      blueprint_name:
+        description: Blueprint name
+        type: string
+  AppInstanceResponse:
+    x-internal: true
+    description: Application instance information
+    type: object
+    properties:
+      status:
+        description: 'Application instance status ("deploying", "pending", "done", etc.)'
+        type: string
+      infra_id:
+        description: Infra ID of application instance
+        type: string
+      instance_type:
+        description: EC2 instance type
+        type: string
+      memory_limit:
+        description: RAM limitation for Kubernetes VM
+        type: string
+      cpu_limit:
+        description: CPU limitation for Kubernetes VM
+        type: string
+      access_links:
+        type: array
+        items:
+          $ref: '#/definitions/ConnectLinkResponse'
+      private_ip:
+        description: Application instance private IP
+        type: string
+      compute_availability:
+        $ref: '#/definitions/ComputeAvailability'
+      links:
+        type: array
+        items:
+          $ref: '#/definitions/Hyperlink'
+  ApplicationResponse:
+    x-internal: true
+    description: Application information
+    type: object
+    properties:
+      private_address:
+        description: Application private address
+        type: string
+      public_address:
+        description: Application public address
+        type: string
+      internal_ports:
+        description: Application internal ports
+        type: array
+        items:
+          type: string
+      external_ports:
+        description: Application external ports
+        type: array
+        items:
+          type: string
+      shortcuts:
+        description: "Application shortcut rules\r\n<remarks>\r\nThe shortcut rule customizes the application link’s display text in the summary page of the sandbox or production environment\r\n</remarks>"
+        type: array
+        items:
+          type: string
+      image_name:
+        description: Application cloud image (AMI for AWS and URN/subscription ID for Azure)
+        type: string
+      internal_dns:
+        description: DNS name of the application in the sandbox (as decided by the cloud provider)
+        type: string
+      instances:
+        description: Application instances
+        type: array
+        items:
+          $ref: '#/definitions/AppInstanceResponse'
+      icon:
+        description: Application image name
+        type: string
+      direct_access_protocols:
+        description: 'Array of protocols for in-browser connection to VM (RDP | SSH | RDP,SSH)'
+        type: array
+        items:
+          type: string
+      name:
+        description: Application name
+        type: string
+      status:
+        description: 'Application status ("Pending", "Aborted", "Done", etc.)'
+        type: string
+      cloud:
+        $ref: '#/definitions/CloudResponse'
+    title: ''
+  ApplicationResponseBase:
+    x-internal: true
+    description: Application basic information
+    type: object
+    properties:
+      name:
+        description: Application name
+        type: string
+      status:
+        description: 'Application status ("Pending", "Aborted", "Done", etc.)'
+        type: string
+      cloud:
+        $ref: '#/definitions/CloudResponse'
+  AwsCloudProviderSettingsModel:
+    x-internal: true
+    description: AWS cloud provider settings model
+    type: object
+    properties:
+      sidecar_image_param_name:
+        description: "Side car image parameter name\r\n<remarks>\r\nParameter must be defined in Parameter Store\r\nIts value will be used as the sidecar image ID\r\n</remarks>"
+        type: string
+  BlueprintApplicationForGetAllResponse:
+    x-internal: true
+    description: Blueprint application information
+    type: object
+    properties:
+      name:
+        description: Application name
+        type: string
+      version:
+        description: Application version
+        type: string
+      icon_url:
+        description: URL of the application icon
+        type: string
+  BlueprintForGetAllResponse:
+    x-internal: true
+    description: Blueprint information
+    type: object
+    properties:
+      blueprint_name:
+        description: Blueprint name
+        type: string
+      description:
+        description: Blueprint description
+        type: string
+      url:
+        description: Blueprint repository URL
+        type: string
+      inputs:
+        type: array
+        items:
+          $ref: '#/definitions/BlueprintInputResponse'
+      enabled:
+        description: Indicates if the blueprint is published or not
+        type: boolean
+      last_modified:
+        format: date-time
+        description: Last modification date and time of the blueprint
+        type: string
+      modified_by:
+        description: Name of the last user who modified the blueprint
+        type: string
+      applications:
+        type: array
+        items:
+          $ref: '#/definitions/BlueprintApplicationForGetAllResponse'
+      services:
+        type: array
+        items:
+          $ref: '#/definitions/BlueprintServiceForGetAllResponse'
+      clouds:
+        type: array
+        items:
+          $ref: '#/definitions/CloudResponse'
+      is_sample:
+        description: Indicates if the blueprint is a sample blueprint
+        type: boolean
+      artifacts:
+        description: "Artifact files of the blueprint applications\r\n<remarks>Maps application name to its relative artifacts path in the space</remarks>"
+        type: object
+        additionalProperties:
+          type: string
+      environment_type:
+        $ref: '#/definitions/EnvironmentType'
+      errors:
+        type: array
+        items:
+          $ref: '#/definitions/Error'
+      links:
+        type: array
+        items:
+          $ref: '#/definitions/Hyperlink'
+  BlueprintInputResponse:
+    x-internal: true
+    description: Blueprint input information
+    type: object
+    properties:
+      name:
+        description: Input name
+        type: string
+      default_value:
+        description: "When the sandbox is created, Torque automatically populates the input with this value.\r\n<remarks>\r\nUser can choose to edit the value or leave it as-is\r\n</remarks>"
+        type: string
+      display_style:
+        description: "Indicates how to display the input value in UI\r\n<remarks>\r\n- To display the input value in plain text in the UI, do not assign a value.<br />\r\n- To hide the input value behind bullets, enter the value \"masked\".\r\n</remarks>"
+        type: string
+      description:
+        description: Input description
+        type: string
+      optional:
+        description: "Indicates if the input is optional or not\r\n<remarks>\r\n- When optional is set to true, the user can leave the parameter empty.<br />\r\n- When optional is set to false, empty value(s) will result in validation error(s).\r\n</remarks>"
+        type: boolean
+  BlueprintServiceForGetAllResponse:
+    x-internal: true
+    description: Blueprint service information
+    type: object
+    properties:
+      name:
+        description: "Service name\r\n<remarks>A service folder and YAML with this name should reside in the \"/services\" folder in the blueprint YAML’s repository</remarks>"
+        type: string
+      type:
+        description: Service type (e.g. "Terraform")
+        type: string
+  BlueprintSourceRequest:
+    x-internal: true
+    description: Request containing blueprint repository information
+    type: object
+    properties:
+      branch:
+        description: Blueprint repository branch
+        type: string
+      commit:
+        description: Blueprint commit version
+        type: string
+  BlueprintSourceResponse:
+    x-internal: true
+    description: Blueprint repository information
+    type: object
+    properties:
+      branch:
+        description: Blueprint repository branch
+        type: string
+      commit:
+        description: Blueprint commit version
+        type: string
+  BlueprintValidationRequest:
+    x-internal: true
+    description: Request to validate blueprint
+    type: object
+    properties:
+      blueprint_name:
+        description: Blueprint name
+        type: string
+      type:
+        description: 'Blueprint type: "sandbox" or "production"'
+        type: string
+      source:
+        $ref: '#/definitions/BlueprintSourceRequest'
+  BlueprintValidationResponse:
+    x-internal: true
+    description: Blueprint validation response
+    type: object
+    properties:
+      blueprint_name:
+        description: Blueprint name
+        type: string
+      description:
+        description: Blueprint description
+        type: string
+      url:
+        description: Blueprint repository URL
+        type: string
+      source:
+        $ref: '#/definitions/BlueprintSourceResponse'
+      inputs:
+        type: array
+        items:
+          $ref: '#/definitions/BlueprintInputResponse'
+      applications:
+        type: array
+        items:
+          $ref: '#/definitions/BlueprintApplicationForGetAllResponse'
+      services:
+        type: array
+        items:
+          $ref: '#/definitions/BlueprintServiceForGetAllResponse'
+      clouds:
+        type: array
+        items:
+          $ref: '#/definitions/CloudResponse'
+      artifacts:
+        description: "Artifact files of blueprint applications\r\n<remarks>Maps application name to its relative artifacts path in the space</remarks>"
+        type: object
+        additionalProperties:
+          type: string
+      errors:
+        type: array
+        items:
+          $ref: '#/definitions/Error'
+  CatalogApplicationForGetResponse:
+    x-internal: true
+    description: Blueprint application information
+    type: object
+    properties:
+      name:
+        description: Application name
+        type: string
+      version:
+        description: Application version
+        type: string
+  CatalogForGetAllResponse:
+    x-internal: true
+    description: "Published blueprint information\r\n<remarks>\r\nPublished blueprint is a blueprint that is available in blueprint catalog\r\n</remarks>"
+    type: object
+    properties:
+      blueprint_name:
+        description: Blueprint name
+        type: string
+      description:
+        description: Blueprint description
+        type: string
+      url:
+        description: Blueprint repository URL
+        type: string
+      inputs:
+        type: array
+        items:
+          $ref: '#/definitions/BlueprintInputResponse'
+      last_modified:
+        format: date-time
+        description: Last modification date and time of the blueprint
+        type: string
+      modified_by:
+        description: Name of the last user who modified the blueprint
+        type: string
+      clouds:
+        description: Cloud names
+        type: array
+        items:
+          type: string
+      is_sample:
+        description: Indicates if the blueprint is a sample blueprint
+        type: boolean
+      applications:
+        type: array
+        items:
+          $ref: '#/definitions/CatalogApplicationForGetResponse'
+      artifacts:
+        description: "Artifact files of the blueprint applications\r\n<remarks>Maps application name to its relative artifacts path in the space</remarks>"
+        type: object
+        additionalProperties:
+          type: string
+      errors:
+        type: array
+        items:
+          $ref: '#/definitions/Error'
+      links:
+        type: array
+        items:
+          $ref: '#/definitions/Hyperlink'
+  CatalogForGetResponse:
+    x-internal: true
+    type: object
+    properties:
+      blueprint_name:
+        description: Blueprint name
+        type: string
+      description:
+        description: Blueprint description
+        type: string
+      url:
+        description: Blueprint repository URL
+        type: string
+      inputs:
+        type: array
+        items:
+          $ref: '#/definitions/BlueprintInputResponse'
+      last_modified:
+        format: date-time
+        description: Last modification date and time of the blueprint
+        type: string
+      modified_by:
+        description: Name of the last user who modified the blueprint
+        type: string
+      clouds:
+        description: Cloud names
+        type: array
+        items:
+          type: string
+      is_sample:
+        description: Indicates if the blueprint is a sample blueprint
+        type: boolean
+      applications:
+        type: array
+        items:
+          $ref: '#/definitions/CatalogApplicationForGetResponse'
+      artifacts:
+        description: "Artifact files of the blueprint applications\r\n<remarks>Maps application name to its relative artifacts path in the space</remarks>"
+        type: object
+        additionalProperties:
+          type: string
+      errors:
+        type: array
+        items:
+          $ref: '#/definitions/Error'
+      links:
+        type: array
+        items:
+          $ref: '#/definitions/Hyperlink'
+  CloudComputeServiceResponse:
+    x-internal: true
+    description: Cloud compute service information
+    type: object
+    properties:
+      name:
+        description: Cloud compute service name
+        type: string
+      type:
+        description: 'Cloud compute service type (EC2, Azure virtual machine, AKS, EKS, etc.)'
+        type: string
+      created_date:
+        format: date-time
+        description: Cloud compute service creation date and time
+        type: string
+      created_by:
+        description: User name of the cloud compute service owner
+        type: string
+      user_defined:
+        description: 'Indicates if the cloud compute service created automatically or defined by the user<br /><example>EC2 and Azure VM are not user defined while K8s, EKS and AKS are user-defined.</example>'
+        type: boolean
+  CloudRegionResponse:
+    x-internal: true
+    description: Cloud region information
+    type: object
+    properties:
+      id:
+        description: Cloud region ID
+        type: string
+      name:
+        description: Cloud region name
+        type: string
+  CloudResponse:
+    x-internal: true
+    description: Cloud account or Kubernetes compute service information
+    type: object
+    properties:
+      provider:
+        description: Cloud provider name
+        type: string
+      cloud_account_name:
+        description: Cloud account name
+        type: string
+      compute_service:
+        $ref: '#/definitions/CloudComputeServiceResponse'
+      region:
+        $ref: '#/definitions/CloudRegionResponse'
+  ComputeAvailability:
+    x-internal: true
+    format: int32
+    description: "Compute availability type\r\n<remarks>\r\n- 0 (On-demand)<br />\r\n- 1 (spot)\r\n</remarks>"
+    enum:
+      - 0
+      - 1
+    type: integer
+  ConnectLinkResponse:
+    x-internal: true
+    description: Connect link information
+    type: object
+    properties:
+      link:
+        description: Link to connect to the machines using debugging service
+        type: string
+      protocol:
+        description: 'Protocol for in-browser connection to VM (RDP, SSH)'
+        type: string
+      errors:
+        type: array
+        items:
+          $ref: '#/definitions/Error'
+  CreateEnvResponse:
+    x-internal: true
+    description: Create environment response
+    type: object
+    properties:
+      id:
+        description: Environment ID
+        type: string
+  CreateProductionBlueRequest:
+    x-internal: true
+    description: Request to create blue production environment
+    type: object
+    properties:
+      blueprint_name:
+        description: Blueprint name
+        type: string
+      artifacts:
+        description: "Artifact files required by the applications of the blueprint\r\n<remarks>\r\nFor each application, specify the application name and artifact file path (path is relative to the repo name defined in the space).\r\n</remarks>"
+        type: object
+        additionalProperties:
+          type: string
+      inputs:
+        description: Environment blueprint inputs
+        type: object
+        additionalProperties:
+          type: string
+      compute_availability:
+        $ref: '#/definitions/ComputeAvailability'
+      lazy_load_artifacts:
+        description: Set to "true" to allow the sandbox to launch without verifying the existence of the artifacts of the sandbox
+        type: boolean
+      lazy_load_artifacts_timeout:
+        format: int32
+        description: Time to wait (in minutes) for artifacts before setup fails
+        type: integer
+  CreateProductionGreenRequest:
+    x-internal: true
+    description: Request to create green production environment
+    type: object
+    properties:
+      artifacts:
+        description: "Artifact files required by the applications of the blueprint\r\n<remarks>\r\nFor each application, specify the application name and artifact file path (path is relative to the repo name defined in the space).\r\n</remarks>"
+        type: object
+        additionalProperties:
+          type: string
+      inputs:
+        description: Environment blueprint inputs
+        type: object
+        additionalProperties:
+          type: string
+      compute_availability:
+        $ref: '#/definitions/ComputeAvailability'
+      lazy_load_artifacts:
+        description: Set to "true" to allow the sandbox to launch without verifying the existence of the artifacts of the sandbox
+        type: boolean
+      lazy_load_artifacts_timeout:
+        format: int32
+        description: Time to wait (in minutes) for artifacts before setup fails
+        type: integer
+  CreateSandboxInput:
+    x-internal: true
+    description: Sandbox input information
+    type: object
+    properties:
+      name:
+        description: Input name
+        type: string
+      value:
+        description: Input value
+        type: string
+      display_style:
+        description: "Indicates how to display input value in UI\r\n<remarks>\r\nTo display input value in plain text in the UI, do not assign a value.<br />\r\nTo hide input value behind bullets, enter the value \"masked\".\r\n</remarks>"
+        type: string
+      description:
+        description: Input description
+        type: string
+      optional:
+        description: "Indicates if input is optional\r\n<remarks>\r\nWhen optional is set to true, user can leave the parameter empty.<br />\r\nWhen optional is set to false, empty value(s) will result in validation error(s).\r\n</remarks>"
+        type: boolean
+  CreateSandboxRequest:
+    x-internal: true
+    description: Request to launch a new sandbox
+    type: object
+    properties:
+      sandbox_name:
+        description: Sandbox name
+        type: string
+      blueprint_name:
+        description: Sandbox blueprint name
+        type: string
+      description:
+        description: Sandbox description
+        type: string
+      automation:
+        description: 'Launch sandbox integrated pipeline tool in the space (Jenkins, Bitbucket, GitLab, etc.)'
+        type: boolean
+      scheduled_end_time:
+        format: date-time
+        description: "Sandbox scheduled end time in ISO 8601 format\r\n<example>For example, 2021-10-06T08:27:05.215Z.</example><remarks>\r\nCannot have both \"duration\" and \"scheduled_end_time\" specified\r\n</remarks>"
+        type: string
+      duration:
+        format: date-span
+        description: "Sandbox duration time in the following format: \"P{days}DT{hours}H{minutes}M{seconds}S]]\"\r\n<example>For example, P0DT2H3M4S.</example><remarks>\r\nCannot have both \"duration\" and \"scheduled_end_time\" specified\r\n</remarks>"
+        type: string
+      source:
+        $ref: '#/definitions/BlueprintSourceRequest'
+      visibility:
+        description: "Indicates if the sandbox is hidden or visible\r\n<remarks>\r\n- \"normal\": sandbox is visible\r\n- \"hidden\": sandbox is hidden\r\n</remarks>"
+        type: string
+      artifacts:
+        description: "Artifact files required by the applications of the blueprint\r\n<remarks>\r\nFor each application, specify the application name and artifact file path (path is relative to the repo name defined in the space).\r\n</remarks>"
+        type: object
+        additionalProperties:
+          type: string
+      inputs:
+        description: Environment blueprint inputs
+        type: object
+        additionalProperties:
+          type: string
+      compute_availability:
+        $ref: '#/definitions/ComputeAvailability'
+      lazy_load_artifacts:
+        description: Set to "true" to allow the sandbox to launch without verifying the existence of the artifacts of the sandbox
+        type: boolean
+      lazy_load_artifacts_timeout:
+        format: int32
+        description: Time to wait (in minutes) for artifacts before setup fails
+        type: integer
+  EnvCost:
+    x-internal: true
+    description: Environment cost information
+    type: object
+    properties:
+      sum:
+        format: double
+        description: Total cost sum
+        type: number
+      last_update:
+        format: date-time
+        description: Time of the last update of environment cost
+        type: string
+      final:
+        description: Is the cost final
+        type: boolean
+      currency:
+        description: 'Currency code in ISO 4217 format (3 letters like USD, EUR, GBP etc.)'
+        type: string
+      incomplete:
+        description: Is the cost incomplete
+        type: boolean
+  EnvironmentType:
+    x-internal: true
+    type: object
+  Error:
+    x-internal: true
+    description: Error information
+    type: object
+    properties:
+      message:
+        description: Error message
+        type: string
+      name:
+        description: Error name
+        type: string
+      code:
+        description: Error code
+        type: string
+  ErrorResponse:
+    x-internal: true
+    description: Errors received from an API
+    type: object
+    properties:
+      errors:
+        description: Array of errors
+        type: array
+        items:
+          $ref: '#/definitions/Error'
+  Hyperlink:
+    x-internal: true
+    description: Links to API
+    type: object
+    properties:
+      rel:
+        description: Link relation type that describes how the current context (source) is related to the target resource
+        type: string
+      href:
+        description: URI link to the API
+        type: string
+      method:
+        description: 'HTTP method (GET, POST, PUT, etc.)'
+        type: string
+  LaunchingProgressResponse:
+    x-internal: true
+    description: Launching progress of an environment information
+    type: object
+    properties:
+      creating_infrastructure:
+        $ref: '#/definitions/LaunchingProgressStepResponse'
+      preparing_artifacts:
+        $ref: '#/definitions/LaunchingProgressStepResponse'
+      deploying_applications:
+        $ref: '#/definitions/LaunchingProgressStepResponse'
+      verifying_environment:
+        $ref: '#/definitions/LaunchingProgressStepResponse'
+  LaunchingProgressStepResponse:
+    x-internal: true
+    description: Launching progress step details
+    type: object
+    properties:
+      status:
+        description: 'Launching progress status ("pending", "in progress", "done", etc.)'
+        type: string
+      total:
+        format: int32
+        description: Total of items to be launched
+        type: integer
+      succeeded:
+        format: int32
+        description: Total of items that were launched successfully
+        type: integer
+      failed:
+        format: int32
+        description: Total of items that failed to launch
+        type: integer
+  ModelForLogin:
+    x-internal: true
+    description: Login request
+    required:
+      - email
+      - password
+    type: object
+    properties:
+      email:
+        description: User email
+        type: string
+      password:
+        description: User password
+        type: string
+  OutputDisplayStyle:
+    x-internal: true
+    type: object
+  ParameterStoreItemRequest:
+    x-internal: true
+    description: Request to add parameter to Parameter Store
+    type: object
+    properties:
+      name:
+        description: "Parameter name\r\n<remarks>\r\n- Parameter Name is case-insensitive<br />\r\n- Parameter Name may only contain URL-supported characters including letters, digits, underscores, dashes, etc.\r\n</remarks>"
+        type: string
+      origin:
+        $ref: '#/definitions/ParameterStoreOrigin'
+      description:
+        description: Parameter description
+        type: string
+      value:
+        $ref: '#/definitions/ParameterStoreValueModel'
+  ParameterStoreItemResponse:
+    x-internal: true
+    description: Parameter Store item information
+    type: object
+    properties:
+      name:
+        description: Parameter name
+        type: string
+      origin:
+        $ref: '#/definitions/ParameterStoreOrigin'
+      description:
+        description: Parameter description
+        type: string
+      value:
+        $ref: '#/definitions/ParameterStoreValueModel'
+      modified_by:
+        $ref: '#/definitions/UserResponse'
+      last_modified:
+        format: date-time
+        description: Last modification date and time of the parameter
+        type: string
+  ParameterStoreOrigin:
+    x-internal: true
+    description: "Torque’s Parameter Store supports two types of parameters:\r\n- \"literal\": Parameter with a string value<br />\r\n- \"aws-ssm\": Parameter that references a string parameter in the AWS Parameter Store"
+    type: object
+  ParameterStoreValueModel:
+    x-internal: true
+    description: "Value of parameter based on its origin:\r\n<remarks>\r\n- AWS System Manager (SSM): { \"path\" : \"\" }<br />\r\n- literal: { \"content\" : \"\" }\r\n</remarks>"
+    type: object
+  ProductionBlueResponse:
+    x-internal: true
+    description: Blue production information
+    type: object
+    properties:
+      has_green:
+        description: Indicates if there is a green production environment
+        type: boolean
+      sandbox_id:
+        description: Sandbox ID
+        type: string
+      production_status:
+        description: 'Production environment status ("launching", "active", "pending", etc.)'
+        type: string
+      update_status:
+        description: 'Production environment update status ("deploying green", "transitioning green", "cleaning up", etc.)'
+        type: string
+      blueprint_description:
+        description: Description of the production environment's blueprint
+        type: string
+      applications:
+        type: array
+        items:
+          $ref: '#/definitions/ApplicationResponse'
+      services:
+        type: array
+        items:
+          $ref: '#/definitions/ServiceResponse'
+      artifacts:
+        description: Production environment artifacts
+        type: object
+        additionalProperties:
+          type: string
+      inputs:
+        type: array
+        items:
+          $ref: '#/definitions/CreateSandboxInput'
+      outputs:
+        type: array
+        items:
+          $ref: '#/definitions/SandboxOutput'
+      id:
+        description: Environment ID
+        type: string
+      name:
+        description: Environment name
+        type: string
+      blueprint_name:
+        description: Blueprint name
+        type: string
+      status_details:
+        description: 'Environment status details ("initiating", "waiting", "launching", etc.)'
+        type: string
+      status_error_description:
+        description: Error status description of environment
+        type: string
+      deployment_start_time:
+        description: Environment deployment start time
+        type: string
+      create_time:
+        description: Environment creation time
+        type: string
+      build:
+        type: string
+      errors:
+        type: array
+        items:
+          $ref: '#/definitions/SandboxError'
+      owner:
+        $ref: '#/definitions/UserResponse'
+      debugging_service:
+        description: 'Debugging service information ("not ready", "on", "off", etc.)'
+        type: string
+      launching_progress:
+        $ref: '#/definitions/LaunchingProgressResponse'
+      cost:
+        $ref: '#/definitions/EnvCost'
+      internet_facing:
+        description: Indicates if environment is internet-facing
+        type: boolean
+      direct_access:
+        description: Indicates if there is a direct access to environment
+        type: string
+      links:
+        type: array
+        items:
+          $ref: '#/definitions/Hyperlink'
+  ProductionGreenResponse:
+    x-internal: true
+    description: Green production information
+    type: object
+    properties:
+      exposure:
+        format: int32
+        description: Exposure level in percentage of the green production environment to user traffic (0-100)
+        type: integer
+      sandbox_id:
+        description: Sandbox ID
+        type: string
+      production_status:
+        description: 'Production environment status ("launching", "active", "pending", etc.)'
+        type: string
+      update_status:
+        description: 'Production environment update status ("deploying green", "transitioning green", "cleaning up", etc.)'
+        type: string
+      blueprint_description:
+        description: Description of the production environment's blueprint
+        type: string
+      applications:
+        type: array
+        items:
+          $ref: '#/definitions/ApplicationResponse'
+      services:
+        type: array
+        items:
+          $ref: '#/definitions/ServiceResponse'
+      artifacts:
+        description: Production environment artifacts
+        type: object
+        additionalProperties:
+          type: string
+      inputs:
+        type: array
+        items:
+          $ref: '#/definitions/CreateSandboxInput'
+      outputs:
+        type: array
+        items:
+          $ref: '#/definitions/SandboxOutput'
+      id:
+        description: Environment ID
+        type: string
+      name:
+        description: Environment name
+        type: string
+      blueprint_name:
+        description: Blueprint name
+        type: string
+      status_details:
+        description: 'Environment status details ("initiating", "waiting", "launching", etc.)'
+        type: string
+      status_error_description:
+        description: Error status description of environment
+        type: string
+      deployment_start_time:
+        description: Environment deployment start time
+        type: string
+      create_time:
+        description: Environment creation time
+        type: string
+      build:
+        type: string
+      errors:
+        type: array
+        items:
+          $ref: '#/definitions/SandboxError'
+      owner:
+        $ref: '#/definitions/UserResponse'
+      debugging_service:
+        description: 'Debugging service information ("not ready", "on", "off", etc.)'
+        type: string
+      launching_progress:
+        $ref: '#/definitions/LaunchingProgressResponse'
+      cost:
+        $ref: '#/definitions/EnvCost'
+      internet_facing:
+        description: Indicates if environment is internet-facing
+        type: boolean
+      direct_access:
+        description: Indicates if there is a direct access to environment
+        type: string
+      links:
+        type: array
+        items:
+          $ref: '#/definitions/Hyperlink'
+  ProductionResponseListItem:
+    x-internal: true
+    description: Production information
+    type: object
+    properties:
+      id:
+        description: Production environment ID
+        type: string
+      name:
+        description: Production environment name
+        type: string
+      blueprint_description:
+        description: Description of the production environment's blueprint
+        type: string
+      create_time:
+        description: Production environment creation date in ISO 8601 format
+        type: string
+      update_status:
+        description: 'Status of the production environment update process ("None", "Deploying Green", "Cleaning Up", etc.)'
+        type: string
+      update_strategy:
+        description: Production environment strategy (currently only blue/green is supported)
+        type: string
+      blue_status:
+        description: Blue production environment status
+        type: string
+      deployment_start_time:
+        description: Production environment deployment start time in ISO 8601 format
+        type: string
+      blue_applications:
+        type: array
+        items:
+          $ref: '#/definitions/ApplicationResponseBase'
+      green_status:
+        description: Green production environment status
+        type: string
+      links:
+        type: array
+        items:
+          $ref: '#/definitions/Hyperlink'
+  RefreshTokenModel:
+    x-internal: true
+    description: Model of refresh_token returned in the response of login method
+    type: object
+    properties:
+      refresh_token:
+        description: Refresh token value
+        type: string
+  SandboxError:
+    x-internal: true
+    description: Sandbox error information
+    type: object
+    properties:
+      time:
+        description: Time when error occured
+        type: string
+      code:
+        description: Error code
+        type: string
+      message:
+        description: Error message
+        type: string
+  SandboxNetwork:
+    x-internal: true
+    description: Sandbox network details
+    type: object
+    properties:
+      region:
+        description: Cloud account region
+        type: string
+      network_id:
+        description: 'Virtual network ID (AWS: VPC ID; Azure: VNet name)'
+        type: string
+      gateway_subnet:
+        description: ID of subnet where application gateway is installed
+        type: string
+      management_subnet:
+        description: ID of subnet where management infrastructure of sandbox is installed
+        type: string
+      application_subnets:
+        description: ID of subnet(s) where applications of sandbox are deployed
+        type: array
+        items:
+          type: string
+  SandboxOutput:
+    x-internal: true
+    type: object
+    properties:
+      name:
+        type: string
+      value:
+        type: string
+      display_style:
+        $ref: '#/definitions/OutputDisplayStyle'
+      description:
+        type: string
+  SandboxResponse:
+    x-internal: true
+    description: Sandbox information
+    type: object
+    properties:
+      blueprint_description:
+        description: Blueprint description
+        type: string
+      applications:
+        type: array
+        items:
+          $ref: '#/definitions/ApplicationResponse'
+      services:
+        type: array
+        items:
+          $ref: '#/definitions/ServiceResponse'
+      artifacts:
+        description: "Sandbox artifacts\r\n<remarks>\r\nMaps application name to its relative artifacts path in the space\r\n</remarks>"
+        type: object
+        additionalProperties:
+          type: string
+      inputs:
+        type: array
+        items:
+          $ref: '#/definitions/CreateSandboxInput'
+      network:
+        $ref: '#/definitions/SandboxNetwork'
+      outputs:
+        type: array
+        items:
+          $ref: '#/definitions/SandboxOutput'
+      scheduled_end_time:
+        description: Sandbox scheduled end time in ISO 8601 format
+        type: string
+      automation:
+        description: 'Launch sandbox integrated pipeline tool in the space (Jenkins, Bitbucket, GitLab, etc.)'
+        type: boolean
+      sandbox_status:
+        description: 'Sandbox status ("launching", "initiating", "deploying", etc.)'
+        type: string
+      end_time:
+        description: Time the sandbox actually ended in ISO 8601 format
+        type: string
+      source:
+        $ref: '#/definitions/BlueprintSourceResponse'
+      visibility:
+        description: Indicates if the sandbox is hidden or visible
+        type: string
+      id:
+        description: Environment ID
+        type: string
+      name:
+        description: Environment name
+        type: string
+      blueprint_name:
+        description: Blueprint name
+        type: string
+      status_details:
+        description: 'Environment status details ("initiating", "waiting", "launching", etc.)'
+        type: string
+      status_error_description:
+        description: Error status description of environment
+        type: string
+      deployment_start_time:
+        description: Environment deployment start time
+        type: string
+      create_time:
+        description: Environment creation time
+        type: string
+      build:
+        type: string
+      errors:
+        type: array
+        items:
+          $ref: '#/definitions/SandboxError'
+      owner:
+        $ref: '#/definitions/UserResponse'
+      debugging_service:
+        description: 'Debugging service information ("not ready", "on", "off", etc.)'
+        type: string
+      launching_progress:
+        $ref: '#/definitions/LaunchingProgressResponse'
+      cost:
+        $ref: '#/definitions/EnvCost'
+      internet_facing:
+        description: Indicates if environment is internet-facing
+        type: boolean
+      direct_access:
+        description: Indicates if there is a direct access to environment
+        type: string
+      links:
+        type: array
+        items:
+          $ref: '#/definitions/Hyperlink'
+  SandboxResponseListItem:
+    x-internal: true
+    description: Sandbox information
+    type: object
+    properties:
+      applications:
+        type: array
+        items:
+          $ref: '#/definitions/ApplicationResponseBase'
+      services:
+        type: array
+        items:
+          $ref: '#/definitions/ServiceResponse'
+      scheduled_end_time:
+        description: Sandbox scheduled end time in ISO 8601 format
+        type: string
+      automation:
+        description: 'Launch sandbox integrated pipeline tool in the space (Jenkins, Bitbucket, GitLab, etc.)'
+        type: boolean
+      sandbox_status:
+        description: 'Sandbox status ("launching", "initiating", "deploying", etc.)'
+        type: string
+      end_time:
+        description: Time the sandbox actually ended in ISO 8601 format
+        type: string
+      source:
+        $ref: '#/definitions/BlueprintSourceResponse'
+      visibility:
+        description: Indicates if the sandbox is hidden or visible
+        type: string
+      id:
+        description: Environment ID
+        type: string
+      name:
+        description: Environment name
+        type: string
+      blueprint_name:
+        description: Blueprint name
+        type: string
+      status_details:
+        description: 'Environment status details ("initiating", "waiting", "launching", etc.)'
+        type: string
+      status_error_description:
+        description: Error status description of environment
+        type: string
+      deployment_start_time:
+        description: Environment deployment start time
+        type: string
+      create_time:
+        description: Environment creation time
+        type: string
+      build:
+        type: string
+      errors:
+        type: array
+        items:
+          $ref: '#/definitions/SandboxError'
+      owner:
+        $ref: '#/definitions/UserResponse'
+      debugging_service:
+        description: 'Debugging service information ("not ready", "on", "off", etc.)'
+        type: string
+      launching_progress:
+        $ref: '#/definitions/LaunchingProgressResponse'
+      cost:
+        $ref: '#/definitions/EnvCost'
+      internet_facing:
+        description: Indicates if environment is internet-facing
+        type: boolean
+      direct_access:
+        description: Indicates if there is a direct access to environment
+        type: string
+      links:
+        type: array
+        items:
+          $ref: '#/definitions/Hyperlink'
+  ServiceResponse:
+    x-internal: true
+    description: Service information
+    type: object
+    properties:
+      name:
+        description: Service name
+        type: string
+      status:
+        $ref: '#/definitions/ServiceStatus'
+      type:
+        $ref: '#/definitions/ServiceType'
+      logs:
+        $ref: '#/definitions/ServiceTerraformLogs'
+      progress:
+        $ref: '#/definitions/ServiceTerraformProgress'
+      icon:
+        description: Service icon
+        type: string
+  ServiceStatus:
+    x-internal: true
+    description: 'Status of service ("Pending", "Aborted", "Done", etc.)'
+    type: object
+  ServiceTerraformLogs:
+    x-internal: true
+    type: object
+    properties:
+      preparetags:
+        $ref: '#/definitions/TerraformLogInfo'
+      tfinit:
+        $ref: '#/definitions/TerraformLogInfo'
+      tfplan:
+        $ref: '#/definitions/TerraformLogInfo'
+      tfapply:
+        $ref: '#/definitions/TerraformLogInfo'
+      tfdestroy:
+        $ref: '#/definitions/TerraformLogInfo'
+  ServiceTerraformProgress:
+    x-internal: true
+    type: object
+    properties:
+      prepare_tags:
+        type: string
+      terraform_init:
+        type: string
+      terraform_plan:
+        type: string
+      terraform_apply:
+        type: string
+      terraform_destroy:
+        type: string
+  ServiceType:
+    x-internal: true
+    description: 'Service type ("All", "Terraform", "Unknown", etc.)'
+    type: object
+  TerraformLogInfo:
+    x-internal: true
+    type: object
+    properties:
+      location:
+        type: string
+      start_time:
+        type: string
+      duration:
+        type: string
+  TokenResponse:
+    x-internal: true
+    description: "Describes the authentication server response if the request for an access token is valid\r\n<remarks>\r\n Contains access token and some additional properties about the authorization\r\n</remarks>"
+    type: object
+    properties:
+      access_token:
+        description: Access token string as issued by the authorization server
+        type: string
+      refresh_token:
+        description: Refresh token to be used to extend existing session
+        type: string
+      token_type:
+        description: 'Token type, typically just the string "bearer"'
+        type: string
+      expires_in:
+        format: int64
+        description: Access token validity period
+        type: integer
+  UserResponse:
+    x-internal: true
+    description: User information
+    type: object
+    properties:
+      first_name:
+        description: First name
+        type: string
+      last_name:
+        description: Last name
+        type: string
+      email:
+        description: Email
+        type: string
+      join_date:
+        format: date-time
+        description: Date when the user joined Torque
+        type: string
+securityDefinitions:
+  Bearer:
+    name: Authorization
+    type: apiKey
+    in: header
+    description: 'Authorization header using the Bearer scheme. Example: "Authorization: Bearer {token}"'
+security:
+  - Bearer: []
+host: qtorque.io
+schemes:
+  - https
