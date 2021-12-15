@@ -20,7 +20,7 @@ paths:
     post:
       tags:
         - Access Tokens
-      summary: Extends an existing session. Use the new access token returned in the method’s response to reauthorize the session.
+      summary: Extend an existing session.
       consumes:
         - application/json-patch+json
         - application/json
@@ -46,11 +46,12 @@ paths:
           description: Refresh token is invalid or was not given
           schema:
             $ref: '#/definitions/ErrorResponse'
+      description: Use the new access token returned in the method’s response to reauthorize the session.
   /api/token/longtoken:
     post:
       tags:
         - Access Tokens
-      summary: Requests a long-lived access token. Token validity period is 2147483647 seconds.
+      summary: Request a long-lived access token.
       produces:
         - text/plain
         - application/json
@@ -69,11 +70,13 @@ paths:
           schema:
             $ref: '#/definitions/ErrorResponse'
       x-internal: false
+      description: Token validity period is 2147483647 seconds.
+      operationId: ''
   /api/token/revoke:
     post:
       tags:
         - Access Tokens
-      summary: Cancels the current API session (nullifies the active access token)
+      summary: Cancel the current API session
       produces:
         - text/plain
         - application/json
@@ -85,11 +88,12 @@ paths:
           description: Failed to revoke access or refresh token
           schema:
             $ref: '#/definitions/ErrorResponse'
+      description: Cancels the current API session (nullifies the active access token)
   /api/token/revokelongtoken:
     post:
       tags:
         - Access Tokens
-      summary: Cancels the current long token API session (nullifies the active long token)
+      summary: Cancel the current long token
       produces:
         - text/plain
         - application/json
@@ -105,11 +109,12 @@ paths:
           description: Failed to revoke long access token
           schema:
             $ref: '#/definitions/ErrorResponse'
+      description: Cancels the current long token API session (nullifies the active long token)
   '/api/accounts/{account}/login':
     post:
       tags:
         - Access Tokens
-      summary: Creates an API session token. Token validity period is 7200 seconds.
+      summary: Create an API session token.
       consumes:
         - application/json-patch+json
         - application/json
@@ -143,11 +148,12 @@ paths:
           description: User not found
           schema:
             $ref: '#/definitions/ErrorResponse'
+      description: Token validity period is 7200 seconds.
   /api/settings/cloudaccounts/computeservices/k8s/agent-deployment-yaml:
     get:
       tags:
         - Agent
-      summary: Gets the Kubernetes agent deployment YAML file.
+      summary: Get the k8s agent deployment YAML.
       produces:
         - text/plain
         - application/json
@@ -176,11 +182,12 @@ paths:
           description: Cloud not processed request
           schema:
             $ref: '#/definitions/ErrorResponse'
+      description: Gets the Kubernetes agent deployment YAML file.
   /api/settings/computeservices/eks/agent-deployment-yaml:
     get:
       tags:
         - Agent
-      summary: Gets the Amazon Elastic Kubernetes service (eks) agent deployment YAML file.
+      summary: Get eks agent deployment YAML.
       produces:
         - text/plain
         - application/json
@@ -215,6 +222,7 @@ paths:
           description: Cloud not processed request
           schema:
             $ref: '#/definitions/ErrorResponse'
+      description: Gets the Amazon Elastic Kubernetes service (eks) agent deployment YAML file.
   /api/settings/cloudaccounts/computeservices/k8s/renew-cluster-token:
     put:
       tags:
@@ -246,7 +254,7 @@ paths:
     get:
       tags:
         - Blueprints
-      summary: 'Returns a list of published blueprints in the space, including sample blueprints.'
+      summary: Return a list of published blueprints
       produces:
         - text/plain
         - application/json
@@ -851,11 +859,12 @@ paths:
                     - rel: remove blueprint from catalog
                       href: 'https://qtorque.io/api/spaces/Trial/catalog/autogen_init'
                       method: DELETE
+      description: 'Returns a list of published blueprints in the space, including sample blueprints.'
   '/api/spaces/{space_name}/validations/blueprints':
     post:
       tags:
         - Blueprints
-      summary: Runs validation check on a specific blueprint in the space
+      summary: Run blueprint validation
       consumes:
         - application/json-patch+json
         - application/json
@@ -889,6 +898,7 @@ paths:
           description: 'Blueprint name, blueprint type, or blueprint repository branch is empty'
           schema:
             $ref: '#/definitions/ErrorResponse'
+      description: Runs validation check on a specific blueprint in the space
   '/api/spaces/{space_name}/catalog':
     post:
       tags:
@@ -924,7 +934,7 @@ paths:
     get:
       tags:
         - Blueprints Catalog
-      summary: 'Returns details of all published blueprints in the blueprints catalog, including sample blueprints.'
+      summary: Return details of all published blueprints
       produces:
         - text/plain
         - application/json
@@ -946,11 +956,12 @@ paths:
           description: Space not found
           schema:
             $ref: '#/definitions/ErrorResponse'
+      description: 'Returns details of all published blueprints in the blueprints catalog, including sample blueprints.'
   '/api/spaces/{space_name}/catalog/{blueprint_name}':
     get:
       tags:
         - Blueprints Catalog
-      summary: Returns details of a published blueprint in blueprints catalog
+      summary: Return details of a published blueprint
       produces:
         - text/plain
         - application/json
@@ -975,6 +986,7 @@ paths:
           description: 'Space, blueprint, or blueprint in catalog not found'
           schema:
             $ref: '#/definitions/ErrorResponse'
+      description: Returns details of a published blueprint in blueprints catalog
     delete:
       tags:
         - Blueprints Catalog
@@ -1031,7 +1043,7 @@ paths:
     get:
       tags:
         - Parameters
-      summary: Gets all parameters from Parameter Store
+      summary: Get all parameters from Parameter Store
       produces:
         - text/plain
         - application/json
@@ -1043,11 +1055,12 @@ paths:
             type: array
             items:
               $ref: '#/definitions/ParameterStoreItemResponse'
+      description: Gets all parameters from Parameter Store
   '/api/settings/parameters/{param_name}':
     get:
       tags:
         - Parameters
-      summary: Gets a parameter from Parameter Store
+      summary: Get a parameter from Parameter Store
       produces:
         - text/plain
         - application/json
@@ -1067,6 +1080,7 @@ paths:
           description: Parameter not found in Parameter Store
           schema:
             $ref: '#/definitions/ErrorResponse'
+      description: Gets a parameter from Parameter Store
     delete:
       tags:
         - Parameters
@@ -1137,7 +1151,7 @@ paths:
     get:
       tags:
         - Production Environments
-      summary: Gets all production environments from a space
+      summary: Get production environments
       produces:
         - text/plain
         - application/json
@@ -1163,6 +1177,7 @@ paths:
           description: Space not found
           schema:
             $ref: '#/definitions/ErrorResponse'
+      description: Gets all production environments from a space
   '/api/spaces/{space_name}/production/{production_id}/green':
     post:
       tags:
@@ -1255,7 +1270,7 @@ paths:
     get:
       tags:
         - Production Environments
-      summary: Gets a green production environment
+      summary: Get a green production environment
       produces:
         - text/plain
         - application/json
@@ -1284,11 +1299,12 @@ paths:
           description: Space or production environment not found
           schema:
             $ref: '#/definitions/ErrorResponse'
+      description: Gets a green production environment
   '/api/spaces/{space_name}/production/{production_id}':
     get:
       tags:
         - Production Environments
-      summary: Gets a blue production environment
+      summary: Get a blue production environment
       produces:
         - text/plain
         - application/json
@@ -1317,6 +1333,7 @@ paths:
           description: Space or production environment not found
           schema:
             $ref: '#/definitions/ErrorResponse'
+      description: Gets a blue production environment
     delete:
       tags:
         - Production Environments
@@ -1359,7 +1376,7 @@ paths:
     put:
       tags:
         - Production Environments
-      summary: "Exposes a green production environment\r\nSee https://community.qtorque.io/creating-your-production-environment-56/managing-production-with-blue-green-deployment-231"
+      summary: Expose a green production environment
       produces:
         - text/plain
         - application/json
@@ -1405,11 +1422,14 @@ paths:
           description: Cloud account not accessible
           schema:
             $ref: '#/definitions/ErrorResponse'
+      description: |-
+        Exposes a green production environment
+        See https://community.qtorque.io/creating-your-production-environment-56/managing-production-with-blue-green-deployment-231
   '/api/spaces/{space_name}/production/{production_id}/green/promote':
     put:
       tags:
         - Production Environments
-      summary: "User traffic will be redirected only to green production environment\r\nSee https://community.qtorque.io/creating-your-production-environment-56/managing-production-with-blue-green-deployment-231"
+      summary: Redirect user traffic to green production environment
       produces:
         - text/plain
         - application/json
@@ -1446,11 +1466,14 @@ paths:
           description: Cloud account not accessible
           schema:
             $ref: '#/definitions/ErrorResponse'
+      description: |-
+        User traffic will be redirected only to green production environment.
+        See https://community.qtorque.io/creating-your-production-environment-56/managing-production-with-blue-green-deployment-231
   '/api/spaces/{space_name}/production/{production_id}/debuggingservice':
     put:
       tags:
         - Production Environments
-      summary: Updates debugging service of blue production environment
+      summary: Update debugging service of blue production environment
       produces:
         - text/plain
         - application/json
@@ -1495,11 +1518,12 @@ paths:
           description: Cloud account not accessible
           schema:
             $ref: '#/definitions/ErrorResponse'
+      description: Updates debugging service of blue production environment
   '/api/spaces/{space_name}/production/{production_id}/green/debuggingservice':
     put:
       tags:
         - Production Environments
-      summary: Updates debugging service of green production environment
+      summary: Update debugging service of green production environment
       produces:
         - text/plain
         - application/json
@@ -1544,11 +1568,12 @@ paths:
           description: Cloud account not accessible
           schema:
             $ref: '#/definitions/ErrorResponse'
+      description: Updates debugging service of green production environment
   '/api/spaces/{space_name}/sandbox':
     get:
       tags:
         - Sandbox Environments
-      summary: Returns details of all sandboxes in the space
+      summary: Return all sandboxes details
       produces:
         - text/plain
         - application/json
@@ -1589,6 +1614,7 @@ paths:
           description: Count is above the maximum allowed sandboxes (1000)
           schema:
             $ref: '#/definitions/ErrorResponse'
+      description: Returns details of all sandboxes in the space
     post:
       tags:
         - Sandbox Environments
@@ -1642,7 +1668,7 @@ paths:
     get:
       tags:
         - Sandbox Environments
-      summary: Gets details on a sandbox
+      summary: Get sandbox details
       produces:
         - text/plain
         - application/json
@@ -1671,6 +1697,7 @@ paths:
           description: Cloud account is not accessible
           schema:
             $ref: '#/definitions/ErrorResponse'
+      description: Gets details on a sandbox
     delete:
       tags:
         - Sandbox Environments
@@ -1721,7 +1748,7 @@ paths:
     put:
       tags:
         - Sandbox Environments
-      summary: Extends the duration of a running sandbox
+      summary: Extend the sandbox duration
       produces:
         - text/plain
         - application/json
@@ -1761,11 +1788,12 @@ paths:
           description: Cloud not accessible
           schema:
             $ref: '#/definitions/ErrorResponse'
+      description: Extends the duration of a running sandbox
   '/api/spaces/{space_name}/sandbox/{sandbox_id}/debuggingservice':
     put:
       tags:
         - Sandbox Environments
-      summary: "Turns Bastion on or off\r\n<remarks>This API requires Bastion to be deployed in the sandbox environment</remarks>"
+      summary: Turn Bastion on/off
       produces:
         - text/plain
         - application/json
@@ -1810,6 +1838,9 @@ paths:
           description: Cloud not accessible
           schema:
             $ref: '#/definitions/ErrorResponse'
+      description: |-
+        Turns Bastion on or off.
+        This API requires Bastion to be deployed in the sandbox environment
   '/api/spaces/{space_name}/sandbox/{sandboxId}/logs/preparetags':
     get:
       tags:
@@ -2007,6 +2038,7 @@ paths:
           description: Success
           schema:
             $ref: '#/definitions/AwsCloudProviderSettingsModel'
+      description: Gets AWS cloud provider settings.
 definitions:
   AddCatalogRequest:
     x-internal: true
