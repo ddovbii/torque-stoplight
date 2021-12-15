@@ -149,6 +149,7 @@ paths:
           schema:
             $ref: '#/definitions/ErrorResponse'
       description: Token validity period is 7200 seconds.
+      security: []
   /api/settings/cloudaccounts/computeservices/k8s/agent-deployment-yaml:
     get:
       tags:
